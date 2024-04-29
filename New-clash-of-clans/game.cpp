@@ -1,29 +1,4 @@
 #include "Game.h"
-#include "cannon.h"
-#include "fence1.h"
-#include "townhall.h"
-#include "troop.h"
-#include "bullet.h"
-#include <QFile>
-#include <QTextStream>
-#include <QDebug>
-#include <QLabel>
-#include <QVBoxLayout>
-#include <QGridLayout>
-#include <QMessageBox>
-#include <QFrame>
-#include <QGraphicsScene>
-#include <QGraphicsView>
-#include <QGraphicsPixmapItem>
-#include <QProgressBar>
-#include <QGraphicsTextItem>
-#include <QPushButton>
-#include <QTimer>
-#include <QTime>
-#include <QGraphicsProxyWidget>
-#include <QRandomGenerator>
-#include <QCoreApplication>
-#include <QtNumeric>
 using namespace std;
 
 Game::Game(QWidget *parent) : QWidget(parent)
@@ -31,93 +6,86 @@ Game::Game(QWidget *parent) : QWidget(parent)
     int seed = QDateTime::currentMSecsSinceEpoch(); //seeding randomgenerator for troop spawning
     randomGenerator = new QRandomGenerator(seed);
 
-    ////LAYOUT////
-    QFile file(":/textfiles/Text files/File.txt"); // Open the file
-    QFile file2(":/textfiles/Text files/File2.txt"); // Open the file
-
-    if (!file.open(QFile::ReadOnly | QFile::Text))
-    {
-        QMessageBox::information(this, "Error", "Failed to open file: File.txt");
-        return;
-    }
-    if (!file2.open(QFile::ReadOnly | QFile::Text))
-    {
-        QMessageBox::information(this, "Error", "Failed to open file: File2.txt");
-        return;
-    }
-
-
-    //cannonDestroyed=false;
+    level = new Levels; //creating an instance of level
     layout = new QGridLayout(this);
-    setLayout(layout);
-
     scene = new QGraphicsScene();
     view = new QGraphicsView(scene);
-    view->setStyleSheet("background: transparent; border: 0px");
-    view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    layout->addWidget(view);
 
+    //setting background
     QPixmap backgroundPixmap(":/images/Background.png"); // background image empty field
     if (!backgroundPixmap.isNull())
     {
         view->setBackgroundBrush(backgroundPixmap);
     }
 
-    // clanDesign.clear();
+    //layout
+    setLayout(layout);
+    view->setStyleSheet("background: transparent; border: 0px");
+    view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    layout->addWidget(view);
 
-    QTextStream in(&file);
-    QTextStream in2(&file2);
+    //START BUTTON
+    startButton = new QPushButton("Start Level " + QString::number(level->currLevel), this);
+    startButton->setStyleSheet("font-size: 20px;");
+    startButton->move(100,100);
+    connect(startButton, SIGNAL(clicked()), this, SLOT(handleStartButton()));
+    layout->addWidget(startButton);
+    layout->setAlignment(startButton, Qt::AlignCenter | Qt::AlignTop);
+
+    gameStarted = false;
+    startLevel(); //sets scene and view and clan design and timertext
+
+    QGraphicsProxyWidget *buttonProxy = scene->addWidget(startButton); //adding start button to scene
+    buttonProxy->setPos(scene->width() - startButton->width() - 10, 10);
 
 
-    while (!in.atEnd())
-    {
-        QString line = in.readLine();
-        QStringList values = line.split(',');
+    Fence1* fence;
+    Cannon* cannon;
+    Townhall* townhall;
 
-        QVector<int> row;
-        for (const QString& value : values)
-        {
-            bool ok;
-            int element = value.toInt(&ok);
-            if (ok)
-                row.append(element);
-            else
-                row.append(0);
-        }
-        clanDesign.append(row);
-    }
+    //-----------------------------------------------//
 
-    file.close();
+    //sound settings button
+    QPushButton* soundSettingsButton = new QPushButton("Sound Settings", this);
+    soundSettingsButton->setGeometry(100, 100, 150, 30);
+    layout->addWidget(soundSettingsButton);
 
-    while (!in2.atEnd())
-    {
-        QString line = in2.readLine();
-        QStringList values = line.split(',');
+    //shop button
+    QPushButton* shopButton = new QPushButton("Shop", this);
+    shopButton->setGeometry(100, 140, 150, 30);
+    layout->addWidget(shopButton);
 
-        QVector<int> row;
-        for (const QString& value : values)
-        {
-            bool ok;
-            int element = value.toInt(&ok);
-            if (ok)
-                row.append(element);
-            else
-                row.append(0);
-        }
-        clanDesign2.append(row);
-    }
+    connect(soundSettingsButton, &QPushButton::clicked, this, &Game::handleSoundSettingsButton);
+    connect(shopButton, &QPushButton::clicked, this, &Game::handleShopButton);
 
-    file2.close();
+    //MoneyBar will increase by 5 after killing one troop and increase by 20 when a level is completed
+    QProgressBar* moneyBar= new QProgressBar(this);
+    moneyBar->setMinimum(0);
+    moneyBar->setMaximum(1000);
+    currentMoney=0;
+    moneyBar->setValue(currentMoney);
 
-    qDebug() << clanDesign[0][1] << "test";
 
-    scene->setSceneRect(0, 0, clanDesign[0].size() * 50, clanDesign.size() * 50);
+
+}
+
+void Game::startLevel()
+{
+        startButton->setText("Start Level " + QString::number(level->currLevel)); //to update start button text
+        startButton->setEnabled(true);
+        gameStarted = false;
+
+
+    clanDesign = level->getDesignVector(); //sends a vector for the clan design based on the current level
+
+    scene->setSceneRect(0, 0, clanDesign[0].size() * 50, clanDesign.size() * 50); //set scene and view
     view->setFixedSize(clanDesign[0].size() * 50, clanDesign.size() * 50);
+
 
     //----------------------------------------------//
 
-    ////TIMER LABEL////
+    //TIMER LABEL
     timerRect = QRectF(10, 10, 100, 40); // Position and size of the timer rectangle
     timerText = new QGraphicsTextItem();
     timerText->setPos(timerRect.topLeft());
@@ -128,58 +96,25 @@ Game::Game(QWidget *parent) : QWidget(parent)
     timerText->setPos(0,0);
     scene->addItem(timerText);
 
-    //----------------------------------------------//
 
-    ////START BUTTON////
-    startButton = new QPushButton("Start", this);
-    startButton->setStyleSheet("font-size: 20px;");
-    startButton->move(100,100);
-    connect(startButton, SIGNAL(clicked()), this, SLOT(handleStartButton()));
-    QGraphicsProxyWidget *buttonProxy = scene->addWidget(startButton);
-    buttonProxy->setPos(scene->width() - startButton->width() - 10, 10);
-    layout->addWidget(startButton);
-    layout->setAlignment(startButton, Qt::AlignCenter | Qt::AlignTop);
+    startButton->show();
 
-    gameStarted = false;
     qDebug()<<"Working";
+
+    townHallDestroyed=false;
+
+    //-----------------------------------------------//
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(updateTimer())); //game timer
 
     m_timer = new QTimer(this);
     connect(m_timer,SIGNAL(timeout()),this,SLOT (moveTroops())); //to move troops
-    m_timer->start(100);
+    // m_timer->start(100);
 
     spawnTimer = new QTimer();
     connect(spawnTimer, SIGNAL(timeout()),this, SLOT (formTroops()));
-
-
-    Fence1* fence;
-    Cannon* cannon;
-    Townhall* townhall;
-    health= new Health();
-    townHallDestroyed=false;
-
-    //-----------------------------------------------//
-
-    QPushButton* soundSettingsButton = new QPushButton("Sound Settings", this);
-    soundSettingsButton->setGeometry(100, 100, 150, 30);
-    layout->addWidget(soundSettingsButton);
-
-    QPushButton* shopButton = new QPushButton("Shop", this);
-    shopButton->setGeometry(100, 140, 150, 30);
-    layout->addWidget(shopButton);
-
-    connect(soundSettingsButton, &QPushButton::clicked, this, &Game::handleSoundSettingsButton);
-    connect(shopButton, &QPushButton::clicked, this, &Game::handleShopButton);
-    //MoneyBar will increase by 5 after killing one troop and increase by 20 when a level is completed
-    QProgressBar* moneyBar= new QProgressBar(this);
-    moneyBar->setMinimum(0);
-    moneyBar->setMaximum(1000);
-    currentMoney=0;
-    moneyBar->setValue(currentMoney);
-
-
+    qDebug()<< "end";
 }
 
 void Game::handleSoundSettingsButton()
@@ -243,7 +178,7 @@ void Game::displayClanDesign()
     const int castleSize = tileSize;
     const int cannonSize = tileSize;
 
-    qDebug()<<"Working 2";
+    qDebug()<<"inside displayClanDesign";
 
     for (int i = 0; i < clanDesign.size(); i++)
     {
@@ -251,9 +186,6 @@ void Game::displayClanDesign()
         {
             int element = clanDesign[i][j]; //element at the current position
 
-            // if (element == 0)
-            // {
-            // }
             if (element == 1) // castle
             {
                 townhall = new Townhall();
@@ -266,9 +198,6 @@ void Game::displayClanDesign()
                 cannon->setPos(j * cannonSize, i * cannonSize);
                 scene->addItem(cannon);
             }
-            // else if (element==4){
-
-            // }
             else if (element == 3) // fence
             {
               qDebug()<<"Fence1";
@@ -281,120 +210,29 @@ void Game::displayClanDesign()
     }
 }
 
-void Game::displayClanDesign2()
-{
-    const int tileSize = 50; // Adjust this value according to your desired tile size
-    const int fenceSize = tileSize ;
-    const int castleSize = tileSize; // Double the size of the tile for the castle
-    const int cannonSize = tileSize;
-    qDebug()<<"Working 2";
-
-    for (int i = 0; i < clanDesign2.size(); i++)
-    {
-        for (int j = 0; j < clanDesign2[i].size(); j++)
-        {
-            int element = clanDesign2[i][j]; // Get the element at the current position
-
-            if (element == 0)
-            {
-            }
-            else if (element == 1) // castle
-            {
-                townhall = new Townhall();
-                townhall->setPos(j * castleSize, i * castleSize);
-                scene->addItem(townhall);
-
-            }
-            else if (element == 2) // cannon
-            {
-                cannon = new Cannon();
-                cannon->setPos(j * cannonSize, i * cannonSize);
-                scene->addItem(cannon);
-
-
-            }
-            else if (element==4){
-
-            }
-            else if (element == 3) // fence
-            {
-                qDebug()<<"Fence1";
-                fence = new Fence1();
-                fence->setPos(j * fenceSize, i * fenceSize);
-                scene->addItem(fence);
-                qDebug()<<"Fence2";
-            }
-        }
-    }
-}
-
-
-// void Game::startGame()
-// {
-//     startButton->show();
-//     startButton->setEnabled(true);
-//     startButton->hide();
-
-//     resetTimer();
-//     timerText->show();
-//     timer->start(1000);
-
-//     displayClanDesign();
-//     spawnTimer->start(4000);
-//     qDebug() << "spawn timer";
-
-// }
 
 void Game::startGame()
 {
-    if (level1)
-    {
-        startButton->hide();
-        resetTimer();
-        timerText->show();
-        timer->start(1000);
-        displayClanDesign();
+    startButton->hide();
+    resetTimer();
+    timerText->show();
+    timer->start(1000);
+    displayClanDesign();
+
+    if (level->currLevel == 1) //enemies spawn more frequently as level increases
         spawnTimer->start(4000);
 
-    }
-    else if (level2)
-    {
-        startButton->hide();
-        resetTimer();
-        timerText->show();
-        timer->start(1000);
-        displayClanDesign2();
+    else if (level->currLevel == 2)
         spawnTimer->start(3000);
-    }
-    else if (level3)
-    {
 
-        startButton->hide();
-        resetTimer();
-        timerText->show();
-        timer->start(1000);
-        displayClanDesign2();
+    else if (level->currLevel == 3)
         spawnTimer->start(2000);
-    }
-    else if (level4)
-    {
-        startButton->hide();
-        resetTimer();
-        timerText->show();
-        timer->start(1000);
-        displayClanDesign2();
-        spawnTimer->start(1000);
-    }
-    else if (level5)
-    {
 
-        startButton->hide();
-        resetTimer();
-        timerText->show();
-        timer->start(1000);
-        displayClanDesign2();
+    else if (level->currLevel == 4)
+        spawnTimer->start(1000);
+
+    else if (level->currLevel == 5)
         spawnTimer->start(500);
-    }
 }
 
 void Game::formTroops()
@@ -412,7 +250,22 @@ void Game::formTroops()
     Troop* troop = new Troop();
     scene->addItem(troop);
     troop->setPos(randomY * 50, randomX * 50);
-    m_timer->start(20);
+
+    if (level->currLevel == 1) //enemies move faster as level increases
+        m_timer->start(30);
+
+    else if (level->currLevel == 2)
+        m_timer->start(25);
+
+    else if (level->currLevel == 3)
+        m_timer->start(20);
+
+    else if (level->currLevel == 4)
+        m_timer->start(15);
+
+    else if (level->currLevel == 5)
+        m_timer->start(10);
+
 }
 
 void Game::moveTroops()
@@ -547,40 +400,6 @@ void Game::handleStartButton()
         gameStarted = true;
         startGame();
     }
-    else if (level1 && !townHallDestroyed) // Player completed level 1
-    {
-        level1 = false;
-        level2 = true;
-        currentMoney+=100;;
-        startGame();
-    }
-    else if (level2 && !townHallDestroyed) // Player completed level 2
-    {
-        level1 = false;
-        level2 = false;
-        level3=true;
-        currentMoney+=100;;
-        startGame();
-    }
-    else if (level3 && !townHallDestroyed) // Player completed level 3
-    {
-        level1 = false;
-        level2 = false;
-        level3=false;
-        level4=true;
-        currentMoney+=100;;
-        startGame();
-    }
-    else if (level4 && !townHallDestroyed) // Player completed level 4
-    {
-        level1 = false;
-        level2 = false;
-        level3=false;
-        level4=false;
-        level5=true;
-        currentMoney+=100;;
-        startGame();
-    }
 
 }
 
@@ -592,17 +411,22 @@ void Game::updateTimer()
     currentTime = currentTime.addSecs(1);
     timerText->setPlainText(currentTime.toString("m:ss"));
 
-    if (currentTime.minute() == 1 )    {
+    if (currentTime.second() == 10 )    {
         timer->stop();
         m_timer->stop();
         spawnTimer->stop();
-        QMessageBox::information(this, "Player wins!", "Level 1 completed succesfully!");
+        QMessageBox::information(this, "Player wins!", "Level " + QString::number(level->currLevel) + " completed succesfully!"); //!!HANDLE THE BUTTONS
+        level->nextLevel(); //increment current level
+        scene->clear(); //to remove old layout
+        startLevel(); //starts next level
     }
     else if(townHallDestroyed==true){
         timer->stop();
         m_timer->stop();
         spawnTimer->stop();
-        QMessageBox::information(this, "Game Over", "Game Over");
+        QMessageBox::information(this, "Game Over", "Game Over"); //!!HANDLE THE BUTTONS!!
+        scene->clear(); //to remove old layout
+        startLevel(); //restarts the level
     }
 
 }

@@ -1,24 +1,37 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include "cannon.h"
+#include "troop.h"
+#include "fence1.h"
+#include "townhall.h"
+#include "health.h"
+#include "bullet.h"
+#include "levels.h"
+
 #include <QWidget>
 #include <QGridLayout>
 #include <QVector>
-//#include<QProgressBar>
 #include<QTimer>
 #include<QLabel>
 #include<QPushButton>
 #include <QGraphicsTextItem>
-#include"cannon.h"
-#include"troop.h"
-#include "QTimer"
-#include"fence1.h"
-#include"townhall.h"
-#include "health.h"
 #include <QMouseEvent>
 #include <QRandomGenerator>
-//class QGraphicsScene;
-//class QGraphicsView;
+#include <QFile>
+#include <QTextStream>
+#include <QDebug>
+#include <QVBoxLayout>
+#include <QMessageBox>
+#include <QFrame>
+#include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QGraphicsPixmapItem>
+#include <QProgressBar>
+#include <QTime>
+#include <QGraphicsProxyWidget>
+#include <QCoreApplication>
+#include <QtNumeric>
 
 
 class Game : public QWidget
@@ -30,7 +43,6 @@ public:
 
   //  void printClanDesign();
     void displayClanDesign();
-    void displayClanDesign2();
     void adjustSceneSize();
     void startGame();
     void resetTimer();
@@ -41,12 +53,11 @@ public:
      QTimer* m_timer;
 
 private:
-     bool level1, level2, level3, level4, level5;
-     int currentMoney;
-
+    Levels* level;
+    int currentMoney;
+    void startLevel();
     QGridLayout *layout;
     QVector<QVector<int>> clanDesign;
-    QVector<QVector<int>> clanDesign2;
 
    QGraphicsView* view;
    QGraphicsScene* scene;
@@ -81,8 +92,6 @@ public slots:
     void checkCollisions(Troop* troop);
     void moveTroops();
     void formTroops();
-    // void formTroopsLevel1();
-    // void formTroopsLevel2();
 
 };
 

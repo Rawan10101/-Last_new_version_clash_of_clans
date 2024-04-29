@@ -14,6 +14,7 @@ SOURCES += \
     cannon.cpp \
     fence1.cpp \
     health.cpp \
+    levels.cpp \
     main.cpp \
     game.cpp \
     playermoney.cpp \
@@ -27,6 +28,7 @@ HEADERS += \
     fence1.h \
     game.h \
     health.h \
+    levels.h \
     playermoney.h \
     townhall.h \
     troop.h \
