@@ -42,6 +42,7 @@ class Game : public QWidget
 public:
     Game(QWidget *parent = nullptr);
 
+    QList<Workers*> workers;
   //  void printClanDesign();
     void displayClanDesign();
     void adjustSceneSize();
@@ -54,12 +55,13 @@ public:
     void decreaseMoney(int value);
     int getCurrentMoney();
     void setMoney(int value);
-
+    void rebuildStructures();
      QTimer* m_timer;
 
     // shop* shopWindow;
 private:
-
+     Workers* worker;
+     QTimer* workerTimer;
      QLabel* moneyLabel;
     Levels* level;
     int currentMoney;
@@ -86,8 +88,10 @@ private:
     QPixmap scalePixmap(const QPixmap& pixmap, int width, int height);
     Health* health;
     Townhall*findNearestTownhall(const QPointF& position);
+   void moveWorkers();
     bool townHallDestroyed;
     void mousePressEvent(QMouseEvent *event);
+    void checkCollisionsworkers(Workers* worker);
     bool cannonDestroyed;
     QRandomGenerator* randomGenerator;
     QTimer* spawnTimer;

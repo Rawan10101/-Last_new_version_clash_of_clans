@@ -31,14 +31,36 @@ void Workers::rebuildStructure()
 
     show();
 
-    emit fenceRepaired(targetFence);
+    // Move the worker towards the target fence
+    qreal dx = targetFence->x() - x();
+    qreal dy = targetFence->y() - y();
 
-    // Reset the state of the worker
-    targetFence = nullptr;
-    isDestroyed = false;
-    hide();
+    if (qAbs(dx) > qAbs(dy))
+    {
+        if (dx < 0)
+            setPos(x() - 10, y()); // Move left
+        else
+            setPos(x() + 10, y()); // Move right
+    }
+    else
+    {
+        if (dy < 0)
+            setPos(x(), y() - 10); // Move up
+        else
+            setPos(x(), y() + 10); // Move down
+    }
+
+    // Check if the worker has reached the target fence
+    if (collidesWithItem(targetFence))
+    {
+        emit fenceRepaired(targetFence); // Emit signal to repair the fence
+
+        // Reset the state of the worker
+        targetFence = nullptr;
+        isDestroyed = false;
+        hide();
+    }
 }
-
 void Workers::hideWorker()
 {
     setVisible(false);
