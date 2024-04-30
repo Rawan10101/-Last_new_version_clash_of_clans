@@ -4,7 +4,7 @@ using namespace std;
 Health::Health()
 {
     maxHealth = 10;
-    health = maxHealth;
+   health = maxHealth;
 }
 
 int Health::getHealth() {
@@ -21,9 +21,9 @@ void Health::setMaxHealth(int newMaxHealth) {
 }
 
 void Health::decrementHealth() {
-    health--;
+    health-=1;
 }
 
 void Health::incrementHealth() {
-    health++;
+    health += 1;
 }

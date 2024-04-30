@@ -18,6 +18,7 @@ SOURCES += \
     main.cpp \
     game.cpp \
     playermoney.cpp \
+    shop.cpp \
     townhall.cpp \
     troop.cpp \
     workers.cpp
@@ -30,6 +31,7 @@ HEADERS += \
     health.h \
     levels.h \
     playermoney.h \
+    shop.h \
     townhall.h \
     troop.h \
     workers.h

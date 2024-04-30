@@ -5,20 +5,26 @@
 #include <QGraphicsPixmapItem>
 #include <QPointF>
 
+class Fence1;
+
 class Workers : public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT
 public:
     Workers();
+    void setFence(Fence1* fence);
+
+signals:
+    void fenceRepaired(Fence1* fence);
 
 public slots:
-    void showWorker();
-    void hideWorker();
-    void rebuildStructure(QPointF targetPoint);
+    void rebuildStructure();
 
 private:
     bool isDestroyed;
-    QPointF targetPosition;
+    Fence1* targetFence;
+    void hideWorker();
+    void showWorker();
 };
 
 #endif // WORKERS_H

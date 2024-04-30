@@ -14,6 +14,7 @@ Fence1::Fence1()
     pixmap = pixmap.scaledToHeight(50);
     this->setPixmap(pixmap);
     fenceHealth = new Health();
+
     remove=false;
 }
 

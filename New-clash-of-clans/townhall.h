@@ -16,6 +16,7 @@ public:
     //int reduceHealth();
     bool remove;
     Health* townhallHealth;
+    void UpgradeButton();
 
 private:
     //bool destroyed;
