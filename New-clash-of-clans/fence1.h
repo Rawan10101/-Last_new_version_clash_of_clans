@@ -16,13 +16,10 @@ class Fence1 : public QObject, public QGraphicsPixmapItem
     Q_OBJECT
 
 public:
-    Fence1(QString type);
+    Fence1();
     ~Fence1();
     bool remove;
     Health* fenceHealth;
-    QString fenceType; //horizontal or vertical
-    bool underRepair;
-
 private:
     QPixmap fenceImage;
     QPixmap upgradedFenceImage;

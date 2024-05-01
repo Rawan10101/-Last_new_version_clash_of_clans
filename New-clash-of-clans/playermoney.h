@@ -3,15 +3,10 @@
 
 class playerMoney
 {
-    int currentMoney;
+    int money;
 public:
 
     playerMoney();
-    void increaseMoney(int value);
-    void decreaseMoney(int value);
-    void setMoney(int value);
-    int getCurrentMoney();
-
 };
 
 #endif // PLAYERMONEY_H

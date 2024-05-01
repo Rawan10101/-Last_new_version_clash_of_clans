@@ -44,6 +44,7 @@ shop::shop(QWidget *parent)
 
     mainLayout->addLayout(cannonLayout);
 
+    // Connect the upgrade buttons to the respective slots
     // connect(townhallUpgradeButton, &QPushButton::clicked, this, &shop::upgradeTownhall);
     // connect(fenceUpgradeButton, &QPushButton::clicked, this, &shop::upgradeFence);
     // connect(cannonUpgradeButton, &QPushButton::clicked, this, &shop::upgradeCannon);
@@ -54,6 +55,7 @@ shop::shop(QWidget *parent)
 
 void shop::upgradeTownhall()
 {
+    // Set the selected item to Townhall
     selectedItem = Townhall;
 
     // Deduct money and perform the upgrade
@@ -67,6 +69,7 @@ void shop::upgradeTownhall()
 
 void shop::upgradeFence()
 {
+    // Set the selected item to Fence
     selectedItem = Fence;
 
     // Deduct money and perform the upgrade
@@ -82,6 +85,7 @@ void shop::upgradeFence()
 
 void shop::upgradeCannon()
 {
+    // Set the selected item to Cannon
     selectedItem = Cannon;
 
     // Deduct money and perform the upgrade
