@@ -7,7 +7,6 @@ int main(int argc, char *argv[])
 
     Game w;
 
- //  w.displayClanDesign();
     w.show();
 
     return a.exec();

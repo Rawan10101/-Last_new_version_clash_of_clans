@@ -25,16 +25,8 @@ Troop::Troop() {
     picture = picture.scaledToWidth(40);
     this->setPixmap(picture);
     remove=false;
-     speed = 1.0;
+    speed = 1.0;
 
-    // QTimer::singleShot(5 * 60 * 1000, [=]() { //5-minute timer
-    //     qDebug() << "5-minute timer finished";
-    // });
-
-    // m_timer = new QTimer(nullptr); //timer to move enemy troop
-    // connect(m_timer,SIGNAL(timeout()),this,SLOT (move()));
-
-   // health= new Health();
 }
 
 void Troop::stop() {
