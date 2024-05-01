@@ -1,72 +1,62 @@
 #include "workers.h"
-#include "fence1.h"
 
-#include <QTimer>
-#include <QGraphicsScene>
-#include <QPixmap>
-#include <QDebug>
 
-Workers::Workers() : isDestroyed(false), targetFence(nullptr)
+Workers::Workers() : targetFence(nullptr)
 {
     QPixmap workerImage(":/images/Worker.png");
     setPixmap(workerImage.scaled(30, 30));
 
-    QTimer* timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(rebuildStructure()));
-    timer->start(300);
+    workerTimer = new QTimer();
+    connect(workerTimer,SIGNAL(timeout()),this,SLOT (move()));
+    // isDestroyed = false;
 }
 
-void Workers::setFence(Fence1* fence)
-{
-    targetFence = fence;
-}
 
-void Workers::rebuildStructure()
+void Workers::move()
 {
-    if (!isDestroyed || targetFence == nullptr)
+    // if worker is destroyed --> handle in troop collision
+    // if their fence is destroyed --> go back to townhall
+    // if they fixed their fence --> go back to townhall
+
+    // move to the fence
+    QPointF direction = targetFence->pos() - this->pos();
+    direction /= QVector2D(direction).length();
+    qreal dx = direction.x() * 10;
+    qreal dy = direction.y() * 10;
+    setPos(x() + dx, y() + dy);
+
+    // checkCollisions(); //to handle if worker collided with the cannon
+
+    if (collidesWithItem(targetFence)) //if worker has reached fence
     {
-        hide();
-        return;
+        fixFence();
     }
+}
 
-    show();
-
-    // Move the worker towards the target fence
-    qreal dx = targetFence->x() - x();
-    qreal dy = targetFence->y() - y();
-
-    if (qAbs(dx) > qAbs(dy))
+void Workers::checkCollisions()
+{
+    //handle cannon collisions here (redirect worker to move around cannon)
+}
+void Workers::fixFence()
+{
+    if (targetFence->fenceType == "vertical")
     {
-        if (dx < 0)
-            setPos(x() - 10, y()); // Move left
+        if (this->x() > targetFence->x()) //on the left fence
+            this->setPos(x() + 20, y());
         else
-            setPos(x() + 10, y()); // Move right
+            this->setPos(x() - 20, y());
     }
     else
     {
-        if (dy < 0)
-            setPos(x(), y() - 10); // Move up
+        if (this->y() > targetFence->y()) //on the top fence
+            this->setPos(x(), y() + 20);
         else
-            setPos(x(), y() + 10); // Move down
+            this->setPos(x(), y() - 20);
     }
 
-    // Check if the worker has reached the target fence
-    if (collidesWithItem(targetFence))
-    {
-        emit fenceRepaired(targetFence); // Emit signal to repair the fence
+    if (targetFence->fenceHealth->getHealth() < targetFence->fenceHealth->getMaxHealth())
+        targetFence->fenceHealth->incrementHealth();
 
-        // Reset the state of the worker
-        targetFence = nullptr;
-        isDestroyed = false;
-        hide();
-    }
-}
-void Workers::hideWorker()
-{
-    setVisible(false);
 }
 
-void Workers::showWorker()
-{
-    setVisible(true);
-}
+

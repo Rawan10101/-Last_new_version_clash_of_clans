@@ -4,11 +4,9 @@
 #include <QObject>
 #include <QWidget>
 #include "townhall.h"
-#include<QDialog>
-class shop : public QObject , public QWidget
+#include <QDialog>
+class shop : public QWidget
 {
-    Q_OBJECT
-
 public:
     shop(QWidget *parent=nullptr);
 

@@ -1,6 +1,5 @@
 #include "health.h"
 
-using namespace std;
 Health::Health()
 {
     maxHealth = 10;
