@@ -82,6 +82,7 @@ private:
     Cannon* cannon;
     Fence1* fence;
 
+
     int workerCount = 0;
 
     // shop* shopWindow;

@@ -304,7 +304,8 @@ void Game::checkCollisions(Troop* troop)
 
     foreach (QGraphicsItem* collidingItem, collidingItems)
     {
-        if (typeid(*collidingItem) == typeid(Cannon)) {
+        if (typeid(*collidingItem) == typeid(Cannon))
+        {
 
           //redirect troops if they collide with the cannon so they go around out
           Cannon* cannon = dynamic_cast<Cannon*>(collidingItem);
@@ -330,7 +331,8 @@ void Game::checkCollisions(Troop* troop)
 
         }
 
-        else if (typeid(*collidingItem) == typeid(Townhall)) {
+        else if (typeid(*collidingItem) == typeid(Townhall))
+        {
             Townhall *townhall = dynamic_cast<Townhall*>(collidingItem);
 
             qDebug()<<"townhall collision";
@@ -365,7 +367,8 @@ void Game::checkCollisions(Troop* troop)
             }
         }
 
-        else if (typeid(*collidingItem) == typeid(Fence1)) {
+        else if (typeid(*collidingItem) == typeid(Fence1))
+        {
             Fence1* fence = dynamic_cast<Fence1*>(collidingItem);
             qDebug() << "fence collision";
 
@@ -390,11 +393,13 @@ void Game::checkCollisions(Troop* troop)
             fence->fenceHealth->decrementHealth();
             qDebug() << fence->fenceHealth->getHealth();
 
-            if (fence->fenceHealth->getHealth() <= 0) {
+            if (fence->fenceHealth->getHealth() <= 0)
+            {
                 scene->removeItem(fence);
                 delete fence;
             }
-            else {
+            else
+            {
                 if (workerCount < 5 && !fence->underRepair)
                 {
                     Workers* worker = new Workers;
@@ -405,13 +410,21 @@ void Game::checkCollisions(Troop* troop)
                     workerCount++;
                     fence->underRepair = true;
                     qDebug()<< fence->fenceHealth;
+                    if(worker->backHome)
+                    {
+                        scene->removeItem(worker);
+                        delete worker;
+                        workerCount--;
+                    }
                 }
+
             }
 
         }
 
 
-        if (typeid(*collidingItem) == typeid(Bullet)) {
+        if (typeid(*collidingItem) == typeid(Bullet))
+        {
             Bullet* bullet = dynamic_cast<Bullet*>(collidingItem);
                 if (scene->items().contains(bullet)) {
                     scene->removeItem(collidingItem);
@@ -432,7 +445,8 @@ void Game::updateTimer()
     currentTime = currentTime.addSecs(1);
     timerText->setPlainText(currentTime.toString("m:ss"));
 
-    if (currentTime.second() == 50 )    {
+    if (currentTime.second() == 50 )
+    {
         timer->stop();
         m_timer->stop();
         spawnTimer->stop();
@@ -569,7 +583,8 @@ void Game::mousePressEvent(QMouseEvent *event) //release bullet when player clic
 // }
 
 
-void Game::showShopWindow(){
+void Game::showShopWindow()
+{
     // shopWindow->show();
 }
 
