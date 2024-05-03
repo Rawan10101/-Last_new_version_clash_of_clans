@@ -10,7 +10,9 @@ Game::Game(QWidget *parent) : QWidget(parent)
     layout = new QGridLayout(this);
     scene = new QGraphicsScene();
     view = new QGraphicsView(scene);
+    // view->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     money = new playerMoney;
+    shopWindow = new shop(this);
 
     //setting background
     QPixmap backgroundPixmap(":/images/Background.png"); // background image empty field
@@ -25,30 +27,28 @@ Game::Game(QWidget *parent) : QWidget(parent)
     view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     layout->addWidget(view);
+    view->show();
+
 
     //START BUTTON
-    startButton = new QPushButton("Start Level " + QString::number(level->currLevel), this);
+    startButton = new QPushButton("Start Level " + QString::number(level->currLevel));
     startButton->setStyleSheet("font-size: 20px;");
-    startButton->move(100,100);
     connect(startButton, SIGNAL(clicked()), this, SLOT(handleStartButton()));
-    layout->addWidget(startButton);
-    layout->setAlignment(startButton, Qt::AlignCenter | Qt::AlignTop);
-    QGraphicsProxyWidget *buttonProxy = scene->addWidget(startButton); //adding start button to scene
-    buttonProxy->setPos(scene->width() - startButton->width() - 10, 10);
 
-    // startButton = new QPushButton;
-    // startButton->setIcon(QIcon("C:\\Users\\mahin\\Desktop\\pngegg (1).png"));
-    // startButton->move(100,100);
-    // connect(startButton, SIGNAL(clicked()), this, SLOT(handleStartButton()));
-    // QGraphicsProxyWidget* StartButton = scene->addWidget(startButton);
+    //SHOP BUTTON
+    shopButton = new QPushButton("Shop");
+    shopButton->setStyleSheet("font-size: 20px;");
+    connect(shopButton, SIGNAL(clicked()), this, SLOT(showShopWindow()));
 
     gameStarted = false;
     startLevel(); //sets scene and view and clan design and timertext
 
-    // startButton->setFixedSize(scene->width()/4, scene->height()/8);
-    // startButton->setIconSize(QSize(scene->width()/4, scene->height()/4));
-    // StartButton->setPos(scene->width()/2 - startButton->width()/2, scene->height()/2 - startButton->height()/2);
+    QGraphicsProxyWidget *startBtn = scene->addWidget(startButton); //adding start button to scene
+    startBtn->setPos(scene->width()/2 - startButton->width()/2, scene->height() - scene->height()/4);
 
+    QGraphicsProxyWidget *shopBtn = scene->addWidget(shopButton); //adding shop button to scene
+    shopButton->setMinimumWidth(startButton->width());
+    shopBtn->setPos(scene->width()/2 - shopButton->width()/2, startBtn->y()+startButton->height()+10);
 
     //-----------------------------------------------//
 
@@ -58,35 +58,6 @@ Game::Game(QWidget *parent) : QWidget(parent)
     // layout->addWidget(soundSettingsButton);
     // connect(soundSettingsButton, &QPushButton::clicked, this, &Game::handleSoundSettingsButton);
     // //connect(shopButton, &QPushButton::clicked, this, &Game::handleShopButton);
-
-    pauseButton = new QPushButton;
-    pauseButton->setFixedSize(80, 80);
-    pauseButton->setStyleSheet("QPushButton { border-radius : 40px; background-color : transparent; }");
-    pauseButton->setIcon(QIcon("C:\\Users\\mahin\\Desktop\\pngegg - Copy.png"));
-    pauseButton->setIconSize(QSize(80, 80));
-    // QGraphicsDropShadowEffect* effect = new QGraphicsDropShadowEffect();
-    // effect->setBlurRadius(1);
-    // effect->setOffset(3,3);
-    // pauseButton->setGraphicsEffect(effect);
-
-
-    //MoneyBar will increase by 5 after killing one troop and increase by 20 when a level is completed
-    moneyBar= new QProgressBar(this);
-    moneyBar->setTextVisible(false);
-    moneyBar->setGeometry(12,52,60,20);
-    moneyBar->setRange(0,1000);
-    moneyBar->setValue(money->getCurrentMoney());
-    moneyLabel = new QLabel(this);
-    moneyLabel->setGeometry(80,52,60,20);
-    moneyLabel->setText(QString::number(money->getCurrentMoney()));
-
-    QPushButton* shopButton = new QPushButton("Shop", this);
-    shopButton->setGeometry(120, 140, 150, 30);
-    layout->addWidget(shopButton);
-
-    connect(shopButton, &QPushButton::clicked, this, &Game::showShopWindow);
-    // shopWindow = new shop(this);
-
 
 }
 
@@ -116,8 +87,19 @@ void Game::startLevel()
     timerText->setOpacity(0.8);
     timerText->setPos(0,0);
     scene->addItem(timerText);
+    timerText->hide();
 
-
+    //MoneyBar will increase by 5 after killing one troop and increase by 20 when a level is completed
+    moneyBar= new QProgressBar(this);
+    moneyBar->setTextVisible(false);
+    moneyBar->setGeometry(12,52,60,20);
+    moneyBar->setRange(0,1000);
+    moneyBar->setValue(money->getCurrentMoney());
+    moneyLabel = new QLabel(this);
+    moneyLabel->setGeometry(80,52,60,20);
+    moneyLabel->setText(QString::number(money->getCurrentMoney()));
+    moneyBar->hide();
+    moneyLabel->hide();
 
     //-----------------------------------------------//
 
@@ -130,13 +112,9 @@ void Game::startLevel()
     spawnTimer = new QTimer(); //spawning troops timer
     connect(spawnTimer, SIGNAL(timeout()),this, SLOT (formTroops()));
 
-
-    // workerTimer= new QTimer(this);
-    // connect(workerTimer, &QTimer::timeout,this, &Game::rebuildStructures);
-    // connect(workerTimer,SIGNAL(timeout()),this,SLOT (moveWorkers()));
-    // workerTimer->start(1000);
-
     startButton->show();
+    shopButton->show();
+
 }
 
 void Game::displayClanDesign()
@@ -195,15 +173,24 @@ void Game::handleStartButton()
 
 void Game::startGame()
 {
+    workerCount = 0;
     startButton->hide();
-    resetTimer();
+    shopButton->hide();
+
     timerText->show();
+    moneyBar->show();
+    moneyLabel->show();
+
+    resetTimer();
     timer->start(1000);
     displayClanDesign();
     moneyBar->setValue(money->getCurrentMoney()); //update money bar
     moneyLabel->setText(QString::number(money->getCurrentMoney()));
-    QGraphicsProxyWidget * PauseButton = scene->addWidget(pauseButton);
-    PauseButton->setPos(scene->width() - pauseButton->width(), 0);
+
+    pause = new pauseButton;
+    QGraphicsProxyWidget * pauseBtn = scene->addWidget(pause);
+    pauseBtn->setPos(scene->width() - pause->width(), 0);
+    connect(pause, SIGNAL(clicked()), this, SLOT(handlePauseButton()));
 
     if (level->currLevel == 1) //enemies spawn more frequently as level increases
         spawnTimer->start(4000);
@@ -238,7 +225,7 @@ void Game::formTroops()
     } while (clanDesign[randomY][randomX] != 0); //keeps generating until position is a 0
 
 
-    Troop* troop = new Troop();
+    Troop* troop = new Troop(level->currLevel * 3);
     scene->addItem(troop);
     troop->setPos(randomY * 50, randomX * 50);
 
@@ -265,7 +252,7 @@ void Game::moveTroops()
     QList<QGraphicsItem*> items = scene->items();
     foreach (QGraphicsItem* item, items) {
         Troop* troop = dynamic_cast<Troop*>(item);
-        if (troop && !troop->stopped) {
+        if (troop) {
             Townhall* nearestTownhall = findNearestTownhall(troop->pos()); //troops move towards the castle/townhall
             if (nearestTownhall) {
                 QPointF direction = nearestTownhall->pos() - troop->pos();
@@ -375,16 +362,16 @@ void Game::checkCollisions(Troop* troop)
             if (fence->fenceType == "vertical") //side
             {
                 if (troop->x() > fence->x())
-                    troop->setPos(troop->x() + 50, troop->y());
+                    troop->setPos(troop->x() + 30, troop->y());
                 else
-                    troop->setPos(troop->x() - 50, troop->y());
+                    troop->setPos(troop->x() - 30, troop->y());
             }
             else
             {
                 if (troop->y() > fence->y())
-                    troop->setPos(troop->x(), troop->y() + 50);
+                    troop->setPos(troop->x(), troop->y() + 30);
                 else
-                    troop->setPos(troop->x(), troop->y() - 50);
+                    troop->setPos(troop->x(), troop->y() - 30);
 
 
 
@@ -425,14 +412,16 @@ void Game::checkCollisions(Troop* troop)
 
         if (typeid(*collidingItem) == typeid(Bullet))
         {
-            Bullet* bullet = dynamic_cast<Bullet*>(collidingItem);
-                if (scene->items().contains(bullet)) {
-                    scene->removeItem(collidingItem);
-                    delete collidingItem;
-                    scene->removeItem(troop);
-                    delete troop;
-                   scene->removeItem(bullet);
-                }
+            // Bullet* bullet = dynamic_cast<Bullet*>(collidingItem);
+            scene->removeItem(collidingItem);
+            delete collidingItem;
+            troop->troopHealth->decrementHealth();
+
+            if (troop->troopHealth->getHealth() == 0)
+            {
+                scene->removeItem(troop);
+                delete troop;
+            }
         }
     }
 
@@ -450,6 +439,23 @@ void Game::updateTimer()
         timer->stop();
         m_timer->stop();
         spawnTimer->stop();
+        foreach (QGraphicsItem* item, scene->items())
+        {
+            if (typeid(*item) == typeid(Workers))
+            {
+                Workers* w = dynamic_cast<Workers*>(item);
+                w->workerTimer->stop();
+            }
+        }
+        foreach (QGraphicsItem* item, scene->items())
+        {
+            if (typeid(*item) == typeid(Workers))
+            {
+                Workers* w = dynamic_cast<Workers*>(item);
+                w->dance();
+
+            }
+        }
         QMessageBox::information(this, "Player wins!", "Level " + QString::number(level->currLevel) + " completed succesfully!"); //!!HANDLE THE BUTTONS
         level->nextLevel(); //increment current level
         money->increaseMoney(100);
@@ -460,6 +466,26 @@ void Game::updateTimer()
         timer->stop();
         m_timer->stop();
         spawnTimer->stop();
+
+        foreach (QGraphicsItem* item, scene->items())
+        {
+            if (typeid(*item) == typeid(Workers))
+            {
+                Workers* w = dynamic_cast<Workers*>(item);
+                w->workerTimer->stop();
+            }
+        }
+
+        foreach (QGraphicsItem* item, scene->items())
+        {
+            if (typeid(*item) == typeid(Troop))
+            {
+                Troop* t = dynamic_cast<Troop*>(item);
+                t->dance();
+
+            }
+        }
+
         QMessageBox::information(this, "Game Over", "Game Over"); //!!HANDLE THE BUTTONS!!
         scene->clear(); //to remove old layout
         startLevel(); //restarts the level
@@ -585,7 +611,7 @@ void Game::mousePressEvent(QMouseEvent *event) //release bullet when player clic
 
 void Game::showShopWindow()
 {
-    // shopWindow->show();
+    shopWindow->show();
 }
 
 
@@ -597,4 +623,62 @@ void Game::handleSoundSettingsButton()
 
 }
 
+void Game::handlePauseButton()
+{
+    if (gameStarted)
+    {
+        qDebug()<< "pause";
+        gameStarted = false;
+        timer->stop();
+        m_timer->stop();
+        spawnTimer->stop();
+        foreach (QGraphicsItem* item, scene->items())
+        {
+            if (typeid(*item) == typeid(Workers))
+            {
+                Workers* w = dynamic_cast<Workers*>(item);
+                w->workerTimer->stop();
+            }
+        }
 
+        showPauseMenu();
+
+    }
+    else
+    {
+        qDebug()<< "play";
+        gameStarted = true;
+        timer->start();
+        m_timer->start();
+        spawnTimer->start();
+        foreach (QGraphicsItem* item, scene->items())
+        {
+            if (typeid(*item) == typeid(Workers))
+            {
+                Workers* w = dynamic_cast<Workers*>(item);
+                w->workerTimer->start();
+            }
+        }
+
+    }
+}
+
+void Game::showPauseMenu()
+{
+    //still not done yet
+    QMessageBox* menu = new QMessageBox;
+    menu->setWindowFlags(Qt::CustomizeWindowHint);
+    menu->setText("Game Paused");
+    menu->setStyleSheet("background-color: rgb(237, 230, 180); color: black;");
+    QPushButton* resume = new QPushButton("Resume");
+    menu->addButton(resume, QMessageBox::ActionRole);
+    QPushButton* sound = new QPushButton("Sound Settings");
+    menu->addButton(sound, QMessageBox::ActionRole);
+    QPushButton* help = new QPushButton("Help");
+    menu->addButton(help, QMessageBox::ActionRole);
+    QPushButton* leave = new QPushButton("Back to Main Menu");
+    menu->addButton(leave, QMessageBox::ActionRole);
+    menu->exec();
+    if (menu->clickedButton() == resume)
+        handlePauseButton(); //will resume
+}

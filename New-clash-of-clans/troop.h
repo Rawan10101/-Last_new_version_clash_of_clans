@@ -6,22 +6,28 @@
 #include <QGraphicsScene>
 #include "health.h"
 
-class Troop :public QObject, public QGraphicsPixmapItem
+class Troop : public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT
 
 public:
-    Troop();
+    Troop(int value);
     bool remove;
     void stop();
     qreal speed;
     Health* troopHealth;
 
-
-bool stopped = false;
+public slots:
+    void dance();
 
 private:
     QTimer* m_timer;
+    QTimer* danceTimer;
+    QTimer* dTimer;
+    bool dancing = false;
+
+private slots:
+    void danceUtil();
 
 };
 

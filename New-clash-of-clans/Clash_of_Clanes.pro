@@ -11,6 +11,7 @@ CONFIG += c++17
 
 SOURCES += \
     bullet.cpp \
+    buttons.cpp \
     cannon.cpp \
     fence1.cpp \
     health.cpp \
@@ -25,6 +26,7 @@ SOURCES += \
 
 HEADERS += \
     bullet.h \
+    buttons.h \
     cannon.h \
     fence1.h \
     game.h \

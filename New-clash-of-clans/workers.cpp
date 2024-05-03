@@ -14,6 +14,27 @@ Workers::Workers() : targetFence(nullptr)
     workerTimer = new QTimer();
     connect(workerTimer,SIGNAL(timeout()),this,SLOT (move()));
     // isDestroyed = false;
+
+    danceTimer = new QTimer;
+    connect(danceTimer, SIGNAL(timeout()), this, SLOT(dance()));
+    dTimer = new QTimer;
+    connect(dTimer, SIGNAL(timeout()), this, SLOT(danceUtil()));
+    dTimer->start(300);
+
+}
+
+void Workers::dance()
+{
+    dancing = true;
+    danceTimer->start(300);
+    setPos(x(), y()-15);
+
+}
+
+void Workers::danceUtil()
+{
+    if (dancing)
+        setPos(x(), y()+15);
 }
 
 //check if the fence is repaired

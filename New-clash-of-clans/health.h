@@ -11,6 +11,7 @@ class Health : public QObject
 
 public:
     Health();
+    Health(int value);
 
     int getHealth();
     int getMaxHealth();

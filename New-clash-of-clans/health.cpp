@@ -6,6 +6,12 @@ Health::Health()
    health = maxHealth;
 }
 
+Health::Health(int value)
+{
+    maxHealth = value;
+    health = maxHealth;
+}
+
 int Health::getHealth() {
     return health;
 }
@@ -16,6 +22,7 @@ int Health::getMaxHealth() {
 
 void Health::setMaxHealth(int newMaxHealth) {
     maxHealth = newMaxHealth;
+    health = maxHealth;
 
 }
 

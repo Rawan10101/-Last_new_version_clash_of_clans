@@ -11,6 +11,7 @@
 #include "workers.h"
 #include "playermoney.h"
 #include "shop.h"
+#include "buttons.h"
 
 
 #include <QWidget>
@@ -36,7 +37,6 @@
 #include <QGraphicsProxyWidget>
 #include <QCoreApplication>
 #include <QtNumeric>
-#include <QGraphicsDropShadowEffect>
 class shop;
 
 class Game : public QWidget
@@ -57,7 +57,8 @@ private:
     QGraphicsView* view;
 
     QPushButton* startButton;
-    QPushButton* pauseButton;
+    QPushButton* shopButton;
+    pauseButton* pause;
 
 
     bool gameStarted;
@@ -85,7 +86,7 @@ private:
 
     int workerCount = 0;
 
-    // shop* shopWindow;
+    shop* shopWindow;
     // Workers* worker;
     // int cellSize;
     // int sceneWidth;
@@ -102,13 +103,15 @@ private:
     void checkCollisions(Troop* troop);
     void resetTimer();
     void mousePressEvent(QMouseEvent *event);
+    void showPauseMenu();
     // void checkCollisionsworkers(Workers* worker);
     // void rebuildStructures();
-    void handleSoundSettingsButton();
     // void handleShopButton();
 
 private slots:
     void handleStartButton();
+    void handleSoundSettingsButton();
+    void handlePauseButton();
     void formTroops();
     void moveTroops();
     void updateTimer();

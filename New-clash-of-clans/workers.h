@@ -29,6 +29,9 @@ bool repaired();
 // signals:
 //     void fenceRepaired(Fence1* fence);
 
+public slots:
+    void dance();
+
 private:
     // bool isDestroyed;
     // void hideWorker();
@@ -38,10 +41,14 @@ private:
     bool isBeingRepaired();
     bool FenceAttacked();
     void fixFence();
+    QTimer* danceTimer;
+    QTimer* dTimer;
+    bool dancing = false;
 
 
 private slots:
     void move();
+    void danceUtil();
 
 };
 
