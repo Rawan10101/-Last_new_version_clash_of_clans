@@ -37,6 +37,10 @@
 #include <QGraphicsProxyWidget>
 #include <QCoreApplication>
 #include <QtNumeric>
+#include <QMediaPlayer>
+#include <QSoundEffect>
+#include <QAudioOutput>
+
 class shop;
 
 class Game : public QWidget
@@ -60,6 +64,10 @@ private:
     QPushButton* shopButton;
     pauseButton* pause;
 
+
+    QMediaPlayer backgroundMusicPlayer;
+    QAudioOutput audiooutput;
+    QSoundEffect *bulletSoundEffect;
 
     bool gameStarted;
     bool townHallDestroyed;

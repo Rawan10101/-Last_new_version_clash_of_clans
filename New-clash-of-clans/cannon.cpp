@@ -14,12 +14,14 @@ Cannon::Cannon()
    pixmap = pixmap.scaledToWidth(100);
    pixmap = pixmap.scaledToHeight(100);
    this->setPixmap(pixmap);
-
+   cannonHealth= new Health();
    // remove=false;
 }
-
-// void Cannon::upgrade()
-// {
-//     health->setMaxHealth(health->getMaxHealth() * 1.5); // Increase max health by 1.5 every upgrade
-
-// }
+void Cannon::Upgrade()
+{
+    QPixmap pixmap(":/images/Castle.png");
+    pixmap = pixmap.scaledToWidth(50);
+    pixmap = pixmap.scaledToHeight(50);
+    this->setPixmap(pixmap);
+    cannonHealth->setMaxHealth(15);
+}

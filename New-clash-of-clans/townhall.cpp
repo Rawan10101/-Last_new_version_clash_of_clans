@@ -13,14 +13,16 @@ Townhall::Townhall( )
     remove=false;
     //destroyed = 0; //bool variable to indicate if townhall got destroyed
 }
+
+
 void Townhall::UpgradeButton()
 {
     QPixmap pixmap(":/images/Castle.png");
     pixmap = pixmap.scaledToWidth(50);
     pixmap = pixmap.scaledToHeight(50);
     this->setPixmap(pixmap);
+    townhallHealth->setMaxHealth(15);
 }
-
 
 
 

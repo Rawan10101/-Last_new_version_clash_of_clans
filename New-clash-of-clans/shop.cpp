@@ -1,5 +1,6 @@
 #include "shop.h"
 #include <QLabel>
+#include <QPixmap>
 #include <QPushButton>
 #include <QBoxLayout>
 #include <QMessageBox>
@@ -7,7 +8,7 @@
 shop::shop(QWidget *parent)
 {
     // Initialize the selected item to None
-    selectedItem = None;
+    // selectedItem = None;
 
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
 
@@ -43,10 +44,14 @@ shop::shop(QWidget *parent)
     cannonLayout->addWidget(cannonUpgradeButton);
 
     mainLayout->addLayout(cannonLayout);
+    money= new playerMoney();
+    town= new Townhall();
+    cannon= new Cannon();
+    fence= new Fence1("");
 
-    // connect(townhallUpgradeButton, &QPushButton::clicked, this, &shop::upgradeTownhall);
-    // connect(fenceUpgradeButton, &QPushButton::clicked, this, &shop::upgradeFence);
-    // connect(cannonUpgradeButton, &QPushButton::clicked, this, &shop::upgradeCannon);
+    connect(townhallUpgradeButton, &QPushButton::clicked, this, &shop::upgradeTownhall);
+    connect(fenceUpgradeButton, &QPushButton::clicked, this, &shop::upgradeFence);
+    connect(cannonUpgradeButton, &QPushButton::clicked, this, &shop::upgradeCannon);
 }
 
 
@@ -54,43 +59,41 @@ shop::shop(QWidget *parent)
 
 void shop::upgradeTownhall()
 {
-    selectedItem = Townhall;
+    // selectedItem = Townhall;
 
-    // Deduct money and perform the upgrade
-    // int newMoney = game->getCurrentMoney() - 50;
-    // if (newMoney >= 0) {
-    //     game->setMoney(newMoney);
-    // } else {
-    //     QMessageBox::critical(nullptr, "Not enough Money", "You don't have enough money for the townhall upgrade.");
-    // }
+    int newMoney = money->getCurrentMoney()- 50;
+    if (newMoney >= 0) {
+        money->setMoney(newMoney);
+        town->UpgradeButton();
+    } else {
+        QMessageBox::critical(nullptr, "Not enough Money", "You don't have enough money for the townhall upgrade.");
+    }
 }
 
 void shop::upgradeFence()
 {
-    selectedItem = Fence;
+    // selectedItem = Fence;
 
-    // Deduct money and perform the upgrade
-    // int newMoney = game->getCurrentMoney() - 50;
-    // if (newMoney >= 0) {
-    //     game->setMoney(newMoney);
-    //     // Perform the upgrade for the fence
-    //     // ...
-    // } else {
-    //     QMessageBox::critical(nullptr, "Not enough Money", "You don't have enough money for the fence upgrade.");
-    // }
+
+    int newMoney = money->getCurrentMoney() - 50;
+    if (newMoney >= 0) {
+        money->setMoney(newMoney);
+        fence->UpgradeButton();
+    } else {
+        QMessageBox::critical(nullptr, "Not enough Money", "You don't have enough money for the fence upgrade.");
+    }
 }
 
 void shop::upgradeCannon()
 {
-    selectedItem = Cannon;
+    // selectedItem = Cannon;
 
-    // Deduct money and perform the upgrade
-    // int newMoney = game->getCurrentMoney() - 50;
-    // if (newMoney >= 0) {
-    //     game->setMoney(newMoney);
-    //     // Perform the upgrade for the cannon
-    //     // ...
-    // } else {
-    //     QMessageBox::critical(nullptr, "Not enough Money", "You don't have enough money for the cannon upgrade.");
-    // }
+    int newMoney = money->getCurrentMoney() - 50;
+    if (newMoney >= 0) {
+        money->setMoney(newMoney);
+       cannon->Upgrade();
+
+    } else {
+        QMessageBox::critical(nullptr, "Not enough Money", "You don't have enough money for the cannon upgrade.");
+    }
 }

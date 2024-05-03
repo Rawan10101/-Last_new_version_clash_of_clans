@@ -22,11 +22,11 @@ public:
     Health* fenceHealth;
     QString fenceType; //horizontal or vertical
     bool underRepair;
+    void UpgradeButton();
 
 private:
     QPixmap fenceImage;
     QPixmap upgradedFenceImage;
-    QPushButton* upgradeButton;
     int upgradeCost;
 };
 

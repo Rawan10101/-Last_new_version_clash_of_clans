@@ -18,6 +18,7 @@ public:
     Health* townhallHealth;
     void UpgradeButton();
 
+
 private:
     //bool destroyed;
 };

@@ -11,14 +11,15 @@ class Cannon : public QObject, public QGraphicsPixmapItem
 
 public:
     Cannon();
-    //void upgrade(); //to upgrade cannon
+    void Upgrade(); //to upgrade cannon
     //void cannonAttacked(); //for handling collision with enemy
     //void setBulletDirection(int x, int y);
     //void shootBullet();
     //int reduceHealth();
     bool remove;
+    void setImage(QPixmap image);
 private:
-    Health* health;
+    Health* cannonHealth;
     Bullet* bullet;
     qreal bulletDirectionX;
     qreal bulletDirectionY;

@@ -21,3 +21,12 @@ Fence1::Fence1(QString type)
 Fence1::~Fence1()
 {
 }
+
+void Fence1::UpgradeButton()
+{
+    QPixmap pixmap(":/images/Castle.png");
+    pixmap = pixmap.scaledToWidth(50);
+    pixmap = pixmap.scaledToHeight(50);
+    this->setPixmap(pixmap);
+    fenceHealth->setMaxHealth(15);
+}

@@ -1,4 +1,6 @@
 #include "Game.h"
+#include <QSlider>
+
 using namespace std;
 
 Game::Game(QWidget *parent) : QWidget(parent)
@@ -13,7 +15,10 @@ Game::Game(QWidget *parent) : QWidget(parent)
     // view->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     money = new playerMoney;
     shopWindow = new shop(this);
+    layout->deleteLater();
 
+
+    setLayout(layout);
     //setting background
     QPixmap backgroundPixmap(":/images/Background.png"); // background image empty field
     if (!backgroundPixmap.isNull())
@@ -26,8 +31,10 @@ Game::Game(QWidget *parent) : QWidget(parent)
     view->setStyleSheet("background: transparent; border: 0px");
     view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     layout->addWidget(view);
     view->show();
+
 
 
     //START BUTTON
@@ -43,21 +50,33 @@ Game::Game(QWidget *parent) : QWidget(parent)
     gameStarted = false;
     startLevel(); //sets scene and view and clan design and timertext
 
-    QGraphicsProxyWidget *startBtn = scene->addWidget(startButton); //adding start button to scene
-    startBtn->setPos(scene->width()/2 - startButton->width()/2, scene->height() - scene->height()/4);
+    QGraphicsProxyWidget* startBtn = scene->addWidget(startButton);
+    startBtn->setPos(view->width() / 2 - startButton->width() / 2, view->height() - view->height() / 4);
 
-    QGraphicsProxyWidget *shopBtn = scene->addWidget(shopButton); //adding shop button to scene
+    QGraphicsProxyWidget* shopBtn = scene->addWidget(shopButton);
     shopButton->setMinimumWidth(startButton->width());
-    shopBtn->setPos(scene->width()/2 - shopButton->width()/2, startBtn->y()+startButton->height()+10);
+    shopBtn->setPos(view->width() / 2 - shopButton->width() / 2, startBtn->y() + startButton->height() + 10);
 
     //-----------------------------------------------//
 
     // //sound settings button
-    // QPushButton* soundSettingsButton = new QPushButton("Sound Settings", this);
-    // soundSettingsButton->setGeometry(100, 100, 150, 30);
-    // layout->addWidget(soundSettingsButton);
-    // connect(soundSettingsButton, &QPushButton::clicked, this, &Game::handleSoundSettingsButton);
-    // //connect(shopButton, &QPushButton::clicked, this, &Game::handleShopButton);
+    QPushButton* soundSettingsButton = new QPushButton("Sound Settings", this);
+    soundSettingsButton->setGeometry(100, 100, 150, 30);
+    layout->addWidget(soundSettingsButton);
+    connect(soundSettingsButton, &QPushButton::clicked, this, &Game::handleSoundSettingsButton);
+    //connect(shopButton, &QPushButton::clicked, this, &Game::handleShopButton);
+
+
+    backgroundMusicPlayer.setAudioOutput(&audiooutput);
+    backgroundMusicPlayer.setSource(QUrl("C:/Users/HP/Downloads/fm-freemusic-inspiring-optimistic-upbeat-energetic-guitar-rhythm(chosic.com).mp3"));
+    backgroundMusicPlayer.play();
+
+
+   /* backgroundMusicPlayer->setVolume(50); */// adjust volume as needed
+
+    bulletSoundEffect = new QSoundEffect();
+    bulletSoundEffect->setSource(QUrl("qrc:/sounds/bullet_sound.wav"));
+    bulletSoundEffect->setVolume(50);
 
 }
 
@@ -169,6 +188,8 @@ void Game::handleStartButton()
         startGame();
     }
 
+
+
 }
 
 void Game::startGame()
@@ -191,7 +212,7 @@ void Game::startGame()
     QGraphicsProxyWidget * pauseBtn = scene->addWidget(pause);
     pauseBtn->setPos(scene->width() - pause->width(), 0);
     connect(pause, SIGNAL(clicked()), this, SLOT(handlePauseButton()));
-
+     backgroundMusicPlayer.play();
     if (level->currLevel == 1) //enemies spawn more frequently as level increases
         spawnTimer->start(4000);
 
@@ -285,147 +306,158 @@ Townhall* Game::findNearestTownhall(const QPointF& position)
 
 }
 
+
+
+
 void Game::checkCollisions(Troop* troop)
 {
     QList<QGraphicsItem*> collidingItems = troop->collidingItems();
+    QList<QGraphicsItem*> itemsToRemove;
 
     foreach (QGraphicsItem* collidingItem, collidingItems)
     {
-        if (typeid(*collidingItem) == typeid(Cannon))
-        {
-
-          //redirect troops if they collide with the cannon so they go around out
-          Cannon* cannon = dynamic_cast<Cannon*>(collidingItem);
-          qreal dx = troop->x() - collidingItem->x();
-          qreal dy = troop->y() - collidingItem->y();
-
-          //THIS PART NEEDS TO BE FIXED ITS SO WEIRD
-          if (qAbs(dx) > qAbs(dy)) //move left or right
-          {
-              if (dx < 0) //move left
-                troop->setPos(troop->x() - 10, troop->y());
-              else //move right
-                  troop->setPos(troop->x() + 10, troop->y());
-          }
-          else //move up or down
-          {
-              if (dy < 0) //move up
-                troop->setPos(troop->x(), troop->y() + 10);
-              else //move down
-                troop->setPos(troop->x(), troop->y() - 10);
-          }
-
-
-        }
-
-        else if (typeid(*collidingItem) == typeid(Townhall))
-        {
-            Townhall *townhall = dynamic_cast<Townhall*>(collidingItem);
-
-            qDebug()<<"townhall collision";
-
-            qreal dx = troop->x() - collidingItem->x();
-            qreal dy = troop->y() - collidingItem->y();
-
-            //THIS PART ALSO NEEDS TO BE FIXED
-            if (qAbs(dx) > qAbs(dy))//move left or right
-            {
-                if (dx < 0) //move left
-                    troop->setPos(townhall->x()-80, townhall->y());
-                else //move right
-                    troop->setPos(townhall->x()+80, townhall->y());
-            }
-            else //move up or down
-            {
-                if (dy < 0) //move up
-                    troop->setPos(townhall->x(), townhall->y()-80);
-                else //move down
-                    troop->setPos(townhall->x(), townhall->y()+80);
-            }
-
-            townhall->townhallHealth->decrementHealth();
-            qDebug()<< townhall->townhallHealth->getHealth();
-            if (townhall->townhallHealth->getHealth() <= 0)
-            {
-                scene->removeItem(townhall);
-                delete townhall;
-                townHallDestroyed = true;
-
-            }
-        }
-
-        else if (typeid(*collidingItem) == typeid(Fence1))
-        {
-            Fence1* fence = dynamic_cast<Fence1*>(collidingItem);
-            qDebug() << "fence collision";
-
-            if (fence->fenceType == "vertical") //side
-            {
-                if (troop->x() > fence->x())
-                    troop->setPos(troop->x() + 30, troop->y());
-                else
-                    troop->setPos(troop->x() - 30, troop->y());
-            }
-            else
-            {
-                if (troop->y() > fence->y())
-                    troop->setPos(troop->x(), troop->y() + 30);
-                else
-                    troop->setPos(troop->x(), troop->y() - 30);
-
-
-
-            }
-
-            fence->fenceHealth->decrementHealth();
-            qDebug() << fence->fenceHealth->getHealth();
-
-            if (fence->fenceHealth->getHealth() <= 0)
-            {
-                scene->removeItem(fence);
-                delete fence;
-            }
-            else
-            {
-                if (workerCount < 5 && !fence->underRepair)
-                {
-                    Workers* worker = new Workers;
-                    worker->setPos(townhall->x(), townhall->y());
-                    scene->addItem(worker);
-                    worker->targetFence = fence;
-                    worker->workerTimer->start(250);
-                    workerCount++;
-                    fence->underRepair = true;
-                    qDebug()<< fence->fenceHealth;
-                    if(worker->backHome)
-                    {
-                        scene->removeItem(worker);
-                        delete worker;
-                        workerCount--;
-                    }
-                }
-
-            }
-
-        }
-
-
         if (typeid(*collidingItem) == typeid(Bullet))
         {
-            // Bullet* bullet = dynamic_cast<Bullet*>(collidingItem);
             scene->removeItem(collidingItem);
             delete collidingItem;
             troop->troopHealth->decrementHealth();
 
             if (troop->troopHealth->getHealth() == 0)
             {
-                scene->removeItem(troop);
-                delete troop;
+                itemsToRemove.append(troop);
             }
         }
+
+       else if (typeid(*collidingItem) == typeid(Cannon))
+                    {
+
+                      //redirect troops if they collide with the cannon so they go around out
+                      Cannon* cannon = dynamic_cast<Cannon*>(collidingItem);
+                      qreal dx = troop->x() - collidingItem->x();
+                      qreal dy = troop->y() - collidingItem->y();
+
+                      //THIS PART NEEDS TO BE FIXED ITS SO WEIRD
+                      if (qAbs(dx) > qAbs(dy)) //move left or right
+                      {
+                          if (dx < 0) //move left
+                            troop->setPos(troop->x() - 10, troop->y());
+                          else //move right
+                              troop->setPos(troop->x() + 10, troop->y());
+                      }
+                      else //move up or down
+                      {
+                          if (dy < 0) //move up
+                            troop->setPos(troop->x(), troop->y() + 10);
+                          else //move down
+                            troop->setPos(troop->x(), troop->y() - 10);
+                      }
+
+
+                    }
+
+                else if (  typeid(*collidingItem) == typeid(Townhall))
+                {
+                    Townhall *townhall = dynamic_cast<Townhall*>(collidingItem);
+
+                    if(townhall){
+                    qreal dx = troop->x() - collidingItem->x();
+                    qreal dy = troop->y() - collidingItem->y();
+
+                    //THIS PART ALSO NEEDS TO BE FIXED
+                    if (qAbs(dx) > qAbs(dy))//move left or right
+                    {
+                        if (dx < 0) //move left
+                            troop->setPos(townhall->x()-80, townhall->y());
+                        else //move right
+                            troop->setPos(townhall->x()+80, townhall->y());
+                    }
+                    else //move up or down
+                    {
+                        if (dy < 0) //move up
+                            troop->setPos(townhall->x(), townhall->y()-80);
+                        else //move down
+                            troop->setPos(townhall->x(), townhall->y()+80);
+                    }
+                    if ( townhall && typeid(*collidingItem) == typeid(Townhall))
+                    {
+                    townhall->townhallHealth->decrementHealth();
+                    qDebug()<< townhall->townhallHealth->getHealth();
+                    if (townhall->townhallHealth->getHealth() <= 0)
+                    {
+                        itemsToRemove.append(townhall);
+                        townHallDestroyed = true;
+
+                    }
+                    }
+                    }
+                }
+
+                    else if (typeid(*collidingItem) == typeid(Fence1))
+                           {
+
+
+                                    Fence1* fence = dynamic_cast<Fence1*>(collidingItem);
+                    if(fence) {
+                                    qDebug() << "fence collision";
+
+                                    if (fence->fenceType == "vertical") //side
+                                    {
+                                        if (troop->x() > fence->x())
+                                            troop->setPos(troop->x() + 30, troop->y());
+                                        else
+                                            troop->setPos(troop->x() - 30, troop->y());
+                                    }
+                                    else
+                                    {
+                                        if (troop->y() > fence->y())
+                                            troop->setPos(troop->x(), troop->y() + 30);
+                                        else
+                                            troop->setPos(troop->x(), troop->y() - 30);
+
+                                    }
+                                    if (fence && typeid(*collidingItem) == typeid(Fence1)) {
+                                    fence->fenceHealth->decrementHealth();
+                                    qDebug() << fence->fenceHealth->getHealth();
+
+                                    if (fence->fenceHealth->getHealth() <= 0)
+                                    {
+                                        itemsToRemove.append(fence);
+                                    }
+                                    else
+                                    {
+                                        if (workerCount < 5 && !fence->underRepair)
+                                        {
+                                            Workers* worker = new Workers;
+                                            worker->setPos(townhall->x(), townhall->y());
+                                            scene->addItem(worker);
+                                            worker->targetFence = fence;
+                                            worker->workerTimer->start(250);
+                                            workerCount++;
+                                            fence->underRepair = true;
+                                            qDebug()<< fence->fenceHealth;
+                                            if(worker->backHome)
+                                            {
+                                                scene->removeItem(worker);
+                                                delete worker;
+                                                workerCount--;
+                                            }
+                                        }}
+
+                                    }
+
+                    }
+                }
+
+
     }
 
+
+    foreach(QGraphicsItem* item, itemsToRemove){
+        scene->removeItem(item);
+        delete item;
+    }
 }
+
 
 void Game::updateTimer()
 {
@@ -434,7 +466,7 @@ void Game::updateTimer()
     currentTime = currentTime.addSecs(1);
     timerText->setPlainText(currentTime.toString("m:ss"));
 
-    if (currentTime.second() == 50 )
+    if (currentTime.second() == 10 )
     {
         timer->stop();
         m_timer->stop();
@@ -529,6 +561,106 @@ void Game::mousePressEvent(QMouseEvent *event) //release bullet when player clic
 
 
 
+void Game::showShopWindow()
+{
+    shopWindow->show();
+}
+
+
+void Game::handleSoundSettingsButton()
+{
+    QDialog* soundSettingsDialog = new QDialog(this);
+    soundSettingsDialog->setWindowTitle("Sound Settings");
+
+    QVBoxLayout* layout = new QVBoxLayout(soundSettingsDialog);
+
+    QLabel* volumeLabel = new QLabel("Volume");
+    QSlider* volumeSlider = new QSlider(Qt::Horizontal);
+    volumeSlider->setRange(0, 100);
+    volumeSlider->setValue(int( 100));
+
+    QPushButton* applyButton = new QPushButton("Apply");
+
+    layout->addWidget(volumeLabel);
+    layout->addWidget(volumeSlider);
+    layout->addWidget(applyButton);
+
+    connect(applyButton, &QPushButton::clicked, soundSettingsDialog, &QDialog::accept);
+    connect(volumeSlider, &QSlider::valueChanged, this, [this](int value) {
+        qreal volume = qreal(value) / 100.0;
+        audiooutput.setVolume(volume);
+    });
+
+    if (soundSettingsDialog->exec() == QDialog::Accepted)
+    {
+        int volume = volumeSlider->value();
+        QMessageBox::information(this, "Sound Settings", "Volume changed to " + QString::number(volume));
+    }
+
+    delete soundSettingsDialog;
+}
+void Game::handlePauseButton()
+{
+    if (gameStarted)
+    {
+        qDebug()<< "pause";
+        gameStarted = false;
+        timer->stop();
+        m_timer->stop();
+        spawnTimer->stop();
+        foreach (QGraphicsItem* item, scene->items())
+        {
+            if (typeid(*item) == typeid(Workers))
+            {
+                Workers* w = dynamic_cast<Workers*>(item);
+                w->workerTimer->stop();
+            }
+        }
+
+        showPauseMenu();
+
+    }
+    else
+    {
+        qDebug()<< "play";
+        gameStarted = true;
+        timer->start();
+        m_timer->start();
+        spawnTimer->start();
+        foreach (QGraphicsItem* item, scene->items())
+        {
+            if (typeid(*item) == typeid(Workers))
+            {
+                Workers* w = dynamic_cast<Workers*>(item);
+                w->workerTimer->start();
+            }
+        }
+
+    }
+}
+
+void Game::showPauseMenu()
+{
+    //still not done yet
+    QMessageBox* menu = new QMessageBox;
+    menu->setWindowFlags(Qt::CustomizeWindowHint);
+    menu->setText("Game Paused");
+    menu->setStyleSheet("background-color: rgb(237, 230, 180); color: black;");
+    QPushButton* resume = new QPushButton("Resume");
+    menu->addButton(resume, QMessageBox::ActionRole);
+    QPushButton* sound = new QPushButton("Sound Settings");
+    menu->addButton(sound, QMessageBox::ActionRole);
+    QPushButton* help = new QPushButton("Help");
+    menu->addButton(help, QMessageBox::ActionRole);
+    QPushButton* leave = new QPushButton("Back to Main Menu");
+    menu->addButton(leave, QMessageBox::ActionRole);
+    menu->exec();
+    if (menu->clickedButton() == resume)
+        handlePauseButton(); //will resume
+}
+
+
+
 // void Game::onFenceRepaired(Fence1* fence)
 // {
 //     if (fence->fenceHealth->getHealth() < fence->fenceHealth->getMaxHealth())
@@ -609,76 +741,3 @@ void Game::mousePressEvent(QMouseEvent *event) //release bullet when player clic
 // }
 
 
-void Game::showShopWindow()
-{
-    shopWindow->show();
-}
-
-
-
-void Game::handleSoundSettingsButton()
-{
-
-
-
-}
-
-void Game::handlePauseButton()
-{
-    if (gameStarted)
-    {
-        qDebug()<< "pause";
-        gameStarted = false;
-        timer->stop();
-        m_timer->stop();
-        spawnTimer->stop();
-        foreach (QGraphicsItem* item, scene->items())
-        {
-            if (typeid(*item) == typeid(Workers))
-            {
-                Workers* w = dynamic_cast<Workers*>(item);
-                w->workerTimer->stop();
-            }
-        }
-
-        showPauseMenu();
-
-    }
-    else
-    {
-        qDebug()<< "play";
-        gameStarted = true;
-        timer->start();
-        m_timer->start();
-        spawnTimer->start();
-        foreach (QGraphicsItem* item, scene->items())
-        {
-            if (typeid(*item) == typeid(Workers))
-            {
-                Workers* w = dynamic_cast<Workers*>(item);
-                w->workerTimer->start();
-            }
-        }
-
-    }
-}
-
-void Game::showPauseMenu()
-{
-    //still not done yet
-    QMessageBox* menu = new QMessageBox;
-    menu->setWindowFlags(Qt::CustomizeWindowHint);
-    menu->setText("Game Paused");
-    menu->setStyleSheet("background-color: rgb(237, 230, 180); color: black;");
-    QPushButton* resume = new QPushButton("Resume");
-    menu->addButton(resume, QMessageBox::ActionRole);
-    QPushButton* sound = new QPushButton("Sound Settings");
-    menu->addButton(sound, QMessageBox::ActionRole);
-    QPushButton* help = new QPushButton("Help");
-    menu->addButton(help, QMessageBox::ActionRole);
-    QPushButton* leave = new QPushButton("Back to Main Menu");
-    menu->addButton(leave, QMessageBox::ActionRole);
-    menu->exec();
-    if (menu->clickedButton() == resume)
-        handlePauseButton(); //will resume
-}

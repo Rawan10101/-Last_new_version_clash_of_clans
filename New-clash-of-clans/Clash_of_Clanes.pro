@@ -48,4 +48,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 RESOURCES += \
     Images.qrc \
     TextFiles.qrc \
-    res.qrc
+    res.qrc \
+    sound.qrc

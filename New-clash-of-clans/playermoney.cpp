@@ -2,7 +2,7 @@
 
 playerMoney::playerMoney()
 {
-    currentMoney = 0;
+    currentMoney = 200;
 }
 
 void playerMoney::increaseMoney(int value){
