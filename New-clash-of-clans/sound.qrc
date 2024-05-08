@@ -1,5 +1,4 @@
 <RCC>
-    <qresource prefix="/">
-        <file>../../Downloads/fm-freemusic-inspiring-optimistic-upbeat-energetic-guitar-rhythm(chosic.com).mp3</file>
-    </qresource>
+    <qresource prefix="/Sound"/>
+    <qresource prefix="/"/>
 </RCC>

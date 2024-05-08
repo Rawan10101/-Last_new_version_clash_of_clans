@@ -40,6 +40,7 @@
 #include <QMediaPlayer>
 #include <QSoundEffect>
 #include <QAudioOutput>
+#include <QSlider>
 
 class shop;
 
@@ -62,6 +63,7 @@ private:
 
     QPushButton* startButton;
     QPushButton* shopButton;
+    QPushButton* soundSettingsButton;
     pauseButton* pause;
 
 
@@ -111,7 +113,6 @@ private:
     void checkCollisions(Troop* troop);
     void resetTimer();
     void mousePressEvent(QMouseEvent *event);
-    void showPauseMenu();
     // void checkCollisionsworkers(Workers* worker);
     // void rebuildStructures();
     // void handleShopButton();
@@ -126,6 +127,8 @@ private slots:
     // void onFenceRepaired(Fence1* fence);
     void showShopWindow();
     // void moveWorkers();
+    void showPauseMenu();
+
 
 
 

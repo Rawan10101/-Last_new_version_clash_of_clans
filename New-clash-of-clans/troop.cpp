@@ -47,3 +47,11 @@ void Troop::danceUtil()
     if (dancing)
         setPos(x(), y()+15);
 }
+
+void Troop::knockBack(qreal X, qreal Y)
+{
+    qreal dx = X - this->pos().x();
+    qreal dy = Y - this->pos().y();
+
+    setPos(x() - dx, y() - dy);
+}

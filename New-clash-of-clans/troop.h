@@ -16,6 +16,7 @@ public:
     void stop();
     qreal speed;
     Health* troopHealth;
+    void knockBack(qreal X, qreal Y);
 
 public slots:
     void dance();
