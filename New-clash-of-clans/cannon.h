@@ -5,11 +5,16 @@
 #include "health.h"
 #include "bullet.h"
 
+
 class Cannon : public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT
 
 public:
+
+    static qreal power;
+
+
     Cannon();
     void Upgrade(); //to upgrade cannon
     //void cannonAttacked(); //for handling collision with enemy
@@ -18,6 +23,8 @@ public:
     //int reduceHealth();
     bool remove;
     void setImage(QPixmap image);
+    void powerUp();
+
 private:
     Health* cannonHealth;
     Bullet* bullet;

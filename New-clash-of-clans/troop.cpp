@@ -18,7 +18,7 @@
 #include <QRandomGenerator>
 #include<QObject>
 
-Troop::Troop(int value) {
+Troop::Troop(qreal health, qreal power) {
 
     QPixmap picture(":/images/Barbarian1.png");
     picture = picture.scaledToHeight(40);
@@ -26,7 +26,8 @@ Troop::Troop(int value) {
     this->setPixmap(picture);
     remove=false;
     speed = 1.0;
-    troopHealth = new Health(value);
+    troopHealth = new Health(health);
+    troopPower = power;
     danceTimer = new QTimer;
     connect(danceTimer, SIGNAL(timeout()), this, SLOT(dance()));
     dTimer = new QTimer;

@@ -5,10 +5,14 @@
 #include <QGraphicsPixmapItem>
 #include "health.h"
 
+
 class Townhall: public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT
 public:
+
+    static qreal healthValue;
+
     Townhall( );
     //void upgrade();
     //void townhallAttacked();

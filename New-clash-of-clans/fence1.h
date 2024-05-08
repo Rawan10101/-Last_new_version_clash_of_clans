@@ -16,6 +16,9 @@ class Fence1 : public QObject, public QGraphicsPixmapItem
     Q_OBJECT
 
 public:
+
+    static qreal healthValue;
+
     Fence1(QString type);
     ~Fence1();
     bool remove;

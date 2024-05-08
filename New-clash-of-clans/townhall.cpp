@@ -2,7 +2,7 @@
 #include <QDebug>
 Townhall::Townhall( )
 {
-    townhallHealth = new Health();
+    townhallHealth = new Health(healthValue);
     //health->setMaxHealth(10);
     QPixmap pixmap(":/images/Castle.png");
     pixmap = pixmap.scaledToWidth(50);
@@ -14,6 +14,7 @@ Townhall::Townhall( )
     //destroyed = 0; //bool variable to indicate if townhall got destroyed
 }
 
+qreal Townhall::healthValue = 1000;
 
 void Townhall::UpgradeButton()
 {

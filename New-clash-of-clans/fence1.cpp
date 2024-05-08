@@ -13,10 +13,12 @@ Fence1::Fence1(QString type)
     pixmap = pixmap.scaledToWidth(50);
     pixmap = pixmap.scaledToHeight(50);
     this->setPixmap(pixmap);
-    fenceHealth = new Health();
+    fenceHealth = new Health(healthValue);
     fenceType = type;
     remove=false;
 }
+
+qreal Fence1::healthValue = 1000;
 
 Fence1::~Fence1()
 {

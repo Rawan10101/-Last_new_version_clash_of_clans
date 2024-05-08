@@ -41,6 +41,7 @@
 #include <QSoundEffect>
 #include <QAudioOutput>
 #include <QSlider>
+#include <QCoreApplication>
 
 class shop;
 
@@ -65,6 +66,8 @@ private:
     QPushButton* shopButton;
     QPushButton* soundSettingsButton;
     pauseButton* pause;
+    QPushButton* quitButton;
+    QPushButton* helpButton;
 
 
     QMediaPlayer backgroundMusicPlayer;
@@ -73,6 +76,7 @@ private:
 
     bool gameStarted;
     bool townHallDestroyed;
+    bool gamePaused = false;
 
 
     QProgressBar* moneyBar;
@@ -95,6 +99,8 @@ private:
 
 
     int workerCount = 0;
+    int killCount = 0;
+    qreal cannonPower;
 
     shop* shopWindow;
     // Workers* worker;
@@ -121,6 +127,8 @@ private slots:
     void handleStartButton();
     void handleSoundSettingsButton();
     void handlePauseButton();
+    void handleQuitButton();
+    void handleHelpButton();
     void formTroops();
     void moveTroops();
     void updateTimer();

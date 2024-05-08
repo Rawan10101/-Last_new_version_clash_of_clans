@@ -3,31 +3,31 @@
 Health::Health()
 {
     maxHealth = 10;
-   health = maxHealth;
+    health = maxHealth;
 }
 
-Health::Health(int value)
+Health::Health(qreal value)
 {
     maxHealth = value;
     health = maxHealth;
 }
 
-int Health::getHealth() {
+qreal Health::getHealth() {
     return health;
 }
 
-int Health::getMaxHealth() {
+qreal Health::getMaxHealth() {
     return maxHealth;
 }
 
-void Health::setMaxHealth(int newMaxHealth) {
+void Health::setMaxHealth(qreal newMaxHealth) {
     maxHealth = newMaxHealth;
     health = maxHealth;
 
 }
 
-void Health::decrementHealth() {
-    health-=1;
+void Health::reduceHealth(qreal value) {
+    health -= value;
 }
 
 void Health::incrementHealth() {

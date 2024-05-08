@@ -14,9 +14,15 @@ Cannon::Cannon()
    pixmap = pixmap.scaledToWidth(100);
    pixmap = pixmap.scaledToHeight(100);
    this->setPixmap(pixmap);
-   cannonHealth= new Health();
-   // remove=false;
 }
+
+qreal Cannon::power = 100;
+
+void Cannon::powerUp()
+{
+    power += power * 0.1; //power upgrades by 10% each 20 kills
+}
+
 void Cannon::Upgrade()
 {
     QPixmap pixmap(":/images/Castle.png");

@@ -22,8 +22,6 @@ Bullet::Bullet(qreal mouseX, qreal mouseY, qreal cannonX, qreal cannonY)
     QTimer *timer = new QTimer();
     connect(timer, SIGNAL(timeout()), this, SLOT(move())); //timer to move bullet
     timer->start(30);
-
-    qDebug() << "Inside constructor";
 }
 
 void Bullet::setDirection(qreal x, qreal y)

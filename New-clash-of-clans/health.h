@@ -11,18 +11,18 @@ class Health : public QObject
 
 public:
     Health();
-    Health(int value);
+    Health(qreal value);
 
-    int getHealth();
-    int getMaxHealth();
-    void setMaxHealth(int newMaxHealth);
-    void decrementHealth();
+    qreal getHealth();
+    qreal getMaxHealth();
+    void setMaxHealth(qreal newMaxHealth);
+    void reduceHealth(qreal value);
     void incrementHealth();
 
 
 private:
-    int maxHealth;
-    int health;
+    qreal maxHealth;
+    qreal health;
 };
 
 #endif // HEALTH_H

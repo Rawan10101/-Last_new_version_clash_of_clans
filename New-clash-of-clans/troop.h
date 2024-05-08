@@ -11,12 +11,13 @@ class Troop : public QObject, public QGraphicsPixmapItem
     Q_OBJECT
 
 public:
-    Troop(int value);
+    Troop(qreal health, qreal power);
     bool remove;
     void stop();
     qreal speed;
     Health* troopHealth;
     void knockBack(qreal X, qreal Y);
+    qreal troopPower;
 
 public slots:
     void dance();
