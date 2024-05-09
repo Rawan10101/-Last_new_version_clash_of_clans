@@ -12,6 +12,7 @@
 #include "playermoney.h"
 #include "shop.h"
 #include "buttons.h"
+#include "booster.h"
 
 
 #include <QWidget>
@@ -92,6 +93,7 @@ private:
     QTimer* m_timer;
     QTimer* spawnTimer;
     QTimer* workerTimer;
+    QTimer* boosterTimer;
 
     Townhall* townhall;
     Cannon* cannon;
@@ -136,6 +138,7 @@ private slots:
     void showShopWindow();
     // void moveWorkers();
     void showPauseMenu();
+    void spawnBoosters();
 
 
 

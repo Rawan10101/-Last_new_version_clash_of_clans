@@ -102,6 +102,11 @@ Game::Game(QWidget *parent) : QWidget(parent)
     bulletSoundEffect->setSource(QUrl("qrc:/sounds/bullet_sound.wav"));
     bulletSoundEffect->setVolume(50);
 
+    ////////////////////////
+    // Booster* booster = new Booster();
+    // booster->setPos(50,50);
+    // scene->addItem(booster);
+
 }
 
 
@@ -155,6 +160,9 @@ void Game::startLevel()
 
     spawnTimer = new QTimer(); //spawning troops timer
     connect(spawnTimer, SIGNAL(timeout()),this, SLOT (formTroops()));
+
+    boosterTimer = new QTimer(); //spawning boosters (health markers)
+    connect(boosterTimer, SIGNAL(timeout()), this, SLOT(spawnBoosters()));
 
     startButton->show();
     shopButton->show();
@@ -234,6 +242,7 @@ void Game::startGame()
 
     resetTimer();
     timer->start(1000);
+    boosterTimer->start(30000);
     displayClanDesign();
     moneyBar->setValue(money->getCurrentMoney()); //update money bar
     moneyLabel->setText(QString::number(money->getCurrentMoney()));
@@ -276,7 +285,7 @@ void Game::formTroops()
          // qDebug()<< randomX << " " << randomY;
     } while (clanDesign[randomY][randomX] != 0); //keeps generating until position is a 0
 
-
+    qDebug() << "randomX: " << randomX << " randomY: " << randomY;
     Troop* troop = new Troop(level->currLevel * 300, level->currLevel * 100);
     scene->addItem(troop);
     troop->setPos(randomY * 50, randomX * 50);
@@ -339,7 +348,6 @@ Townhall* Game::findNearestTownhall(const QPointF& position)
 
 
 
-
 void Game::checkCollisions(Troop* troop)
 {
     QList<QGraphicsItem*> collidingItems = troop->collidingItems();
@@ -349,18 +357,18 @@ void Game::checkCollisions(Troop* troop)
     {
         if (typeid(*collidingItem) == typeid(Bullet))
         {
-            qDebug() << cannon->power;
+            qDebug() << cannon->currPower;
 
             scene->removeItem(collidingItem);
             delete collidingItem;
-            troop->troopHealth->reduceHealth(cannon->power);
-            ///////////////////////////////
+            troop->troopHealth->reduceHealth(cannon->currPower);
+            //////////////////////////////////////////////////
             troop->knockBack(collidingItem->pos().x(), collidingItem->pos().y());
 
             if (troop->troopHealth->getHealth() <= 0)
             {
                 itemsToRemove.append(troop);
-                qDebug() << cannon->power;
+                qDebug() << cannon->currPower;
                 killCount++;
                 if (killCount == 20)
                 {
@@ -516,11 +524,12 @@ void Game::updateTimer()
     currentTime = currentTime.addSecs(1);
     timerText->setPlainText(currentTime.toString("m:ss"));
 
-    if (currentTime.second() == 30 )
+    if (currentTime.minute() == 5 )
     {
         timer->stop();
         m_timer->stop();
         spawnTimer->stop();
+        boosterTimer->stop();
         foreach (QGraphicsItem* item, scene->items())
         {
             if (typeid(*item) == typeid(Workers))
@@ -544,7 +553,7 @@ void Game::updateTimer()
         foreach (QGraphicsItem* items, scene->items())
         {
             //clear clan design to prepare for next level
-            if (typeid(*items) == typeid(Fence1) || typeid(*items) == typeid(Workers) || typeid(*items) == typeid(Troop) || typeid(*items) == typeid(Cannon) || typeid(*items) == typeid(Townhall))
+            if (typeid(*items) == typeid(Fence1) || typeid(*items) == typeid(Workers) || typeid(*items) == typeid(Troop) || typeid(*items) == typeid(Cannon) || typeid(*items) == typeid(Townhall) || typeid(*items) == typeid(Booster))
                 delete items;
         }
 
@@ -557,6 +566,7 @@ void Game::updateTimer()
         timer->stop();
         m_timer->stop();
         spawnTimer->stop();
+        boosterTimer->stop();
 
         foreach (QGraphicsItem* item, scene->items())
         {
@@ -623,6 +633,9 @@ void Game::mousePressEvent(QMouseEvent *event) //release bullet when player clic
         bullet->setPos(cannon->pos().x() + 50, cannon->pos().y() + 50); //bullet comes out of cannon
 
         scene->addItem(bullet);
+
+        ///////////////
+        qDebug() << "cannon power: " << cannon->power;
     }
 }
 
@@ -679,6 +692,7 @@ void Game::handlePauseButton()
         timer->stop();
         m_timer->stop();
         spawnTimer->stop();
+        boosterTimer->stop();
         foreach (QGraphicsItem* item, scene->items())
         {
             if (typeid(*item) == typeid(Workers))
@@ -698,6 +712,7 @@ void Game::handlePauseButton()
         timer->start();
         m_timer->start();
         spawnTimer->start();
+        boosterTimer->start();
         foreach (QGraphicsItem* item, scene->items())
         {
             if (typeid(*item) == typeid(Workers))
@@ -724,7 +739,9 @@ void Game::handleQuitButton()
     confirmQuit->exec();
 
     if (confirmQuit->clickedButton() == cancel)
+    {
         delete confirmQuit;
+    }
     else
         QCoreApplication::quit();
 }
@@ -798,10 +815,38 @@ void Game::showPauseMenu()
             startLevel(); //restarts the level
             delete confirmLeave;
         }
+        else
+        {
+            showPauseMenu();
+            delete confirmLeave;
+        }
 
     }
 }
 
+void Game::spawnBoosters()
+{
+    qDebug() << "in spawnboosters";
+    int spawn = randomGenerator->bounded(0,2);
+    qDebug() << spawn;
+    if (spawn == 0)
+        return;
+    else
+    {
+        int randomX;
+        int randomY;
+
+        do{
+                randomX = randomGenerator->bounded(0, clanDesign[0].size()-1); //generating a random X and Y within scene dimensions
+                randomY = randomGenerator->bounded(0, clanDesign.size()-1);
+                qDebug()<< randomX << " " << randomY;
+        } while (!(clanDesign[randomY][randomX] == 0 || clanDesign[randomY][randomX] == 4) ); //keeps generating until position is a 0 or 4
+
+        Booster* booster = new Booster;
+        scene->addItem(booster);
+        booster->setPos(randomY * 50, randomX * 50);
+    }
+}
 
 
 // void Game::onFenceRepaired(Fence1* fence)

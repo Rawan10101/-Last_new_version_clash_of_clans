@@ -8,7 +8,7 @@
 
 Workers::Workers() : targetFence(nullptr)
 {
-    QPixmap workerImage(":/images/Worker.png");
+    QPixmap workerImage(":/images/citizenworker.png");
     setPixmap(workerImage.scaled(30, 30));
 
     workerTimer = new QTimer();

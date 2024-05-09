@@ -1,5 +1,6 @@
 #include "bullet.h"
 #include "troop.h"
+#include "booster.h"
 #include <QGraphicsScene>
 #include <QGraphicsItem>
 #include <QTimer>
@@ -42,14 +43,26 @@ void Bullet::move()
     qreal x_inc = dx / length;
     qreal y_inc = dy / length;
 
-    // qDebug() << dx;
-    // qDebug() << dy;
-
     setPos(x() + x_inc*speed, y() + y_inc*speed);
+
+    checkCollisions();
 
     if (y() < 0 || y() > scene()->height() || x() < 0 || x() > scene()->width()) //to remove bullet
     {
         scene()->removeItem(this);
         delete this;
+    }
+}
+
+void Bullet::checkCollisions()
+{
+    QList<QGraphicsItem*> colliding = collidingItems();
+    foreach (QGraphicsItem* item, colliding)
+    {
+        if (typeid(*item) == typeid(Booster))
+        {
+            Booster* booster = dynamic_cast<Booster*>(item);
+            booster->Boost();
+        }
     }
 }

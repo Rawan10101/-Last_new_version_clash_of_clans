@@ -22,6 +22,7 @@ private:
     qreal directionX;
     qreal directionY;
     qreal mouseX,  mouseY,  cannonX,  cannonY;
+    void checkCollisions();
 };
 
 #endif // BULLET_H

@@ -13,6 +13,7 @@ class Cannon : public QObject, public QGraphicsPixmapItem
 public:
 
     static qreal power;
+    static qreal currPower;
 
 
     Cannon();
