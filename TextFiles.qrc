@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/textfiles">
+        <file>Text files/File.txt</file>
+        <file>Text files/File2.txt</file>
+        <file>Text files/File3.txt</file>
+        <file>Text files/File4.txt</file>
+        <file>Text files/File5.txt</file>
+    </qresource>
+</RCC>
